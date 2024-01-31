@@ -3,33 +3,30 @@ var Xsize = 9;  // the maximum numbers in a row
 var BOARD = Array.from(Array(Ysize), () => new Array(Xsize));
 var ButtonDataMap = {};
 var VisbuttonsInStart = 27;
-var yakov = 100; // hello this is yakov and he's in charge on keeping the size of buttons in order
-for(var i = 0;i<Ysize;i++){
-    for(var j = 0;j<Xsize;j++){
-        createButton(i,j);
-        if(!(i*Xsize+j < VisbuttonsInStart)){
-            break;
+var buttonSize = 100;
+function setup(){
+    for(var i = 0;i<Ysize;i++){
+        for(var j = 0;j<Xsize;j++){
+            createButton(i,j);
+            if(!(i*Xsize+j < VisbuttonsInStart-1)){
+                return 0;
+            }
         }
     }
 }
-// createBoard()
+
 function createButton(y,x){
     BOARD[y][x] = document.createElement("button")
-    BOARD[y][x].id = "button"+y*Xsize+x;
-    Board[y][x].setAttribute('style', 'top:'+i*yakov+'px;left:'+j*yakov+'px;');
-    value = Math.floor(Math.random()*10);
-    BOARD[y][x].value = value;
-    ButtonDataMap[BOARD[y][x]] = buttonData(y,x,BOARD[y][x],value , BOARD[y][x].id);
+    BOARD[y][x].className = "button";
+    BOARD[y][x].id = "button" + (y*Xsize+x);
+    BOARD[y][x].setAttribute('style', 'top:'+y*buttonSize+'px;left:'+x*buttonSize+'px;position: absolute;width:'+buttonSize+'px;height:'+buttonSize+'px;');
+    BOARD[y][x].addEventListener("click", buttonPress());
+    value = Math.floor(Math.random()*9+1);
+    BOARD[y][x].innerHTML = value;
+    ButtonDataMap[BOARD[y][x]] = new buttonData(y,x,BOARD[y][x],value , BOARD[y][x].id);
+    document.body.appendChild(BOARD[y][x]);
 }
-// function createBoard(){
-//     for(var i = 0;i<Ysize;i++){
-//         for(var j = 0;j<Xsize;j++){
-//             if(!(i*Xsize + j < VisbuttonsInStart)){break}
-//             BOARD[i][j].value = Math.floor(Math.random()*10);
 
-//         }
-//     }
-// }
 class buttonData{
     constructor(y, x, Button, number, id){
         this.Y = y;
@@ -38,4 +35,7 @@ class buttonData{
         this.value = number;
         this.id = id
     }
+}
+function buttonPress(){
+    alert("hi");
 }
