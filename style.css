@@ -1,9 +1,11 @@
 :root{
     --size : 100px;
+    --color : #a8a3a3;
 }
-#button{
-    size : var(--size);
-    height: inherit;
-}
+.game_button{
+    width : var(--size);
+    height: var(--size);
+    background-color : var(--color);
 
+}
 
