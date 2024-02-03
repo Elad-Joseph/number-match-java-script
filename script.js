@@ -82,8 +82,8 @@ function buttonPress(clicked){
                 buttonClicked[1].style.background = colors.Default;
             }
             else if(checkValue() && checkPos()){
-                buttonClicked[0].style.display = "none";
-                buttonClicked[1].style.display = "none";
+                buttonClicked[0].style.visibility = "hidden";
+                buttonClicked[1].style.visibility = "hidden";
                 clickCounter = 2;
             }
             
@@ -106,6 +106,13 @@ function checkPos(){
     else if(ButtonDataMap[buttonClicked[0].id].X == ButtonDataMap[buttonClicked[1].id].X){
         return sameCol();
     }
+    else if(Math.abs(buttonDataMap[buttonClicked[0].id].X - buttonDataMap[buttonClicked[1].id].X) == Math.abs(buttonDataMap[buttonClicked[0].id].Y - buttonDataMap[buttonClicked[1].id].Y)){
+        return equalDiagonaly();
+    }
+    else if(ButtonDataMap[buttonClicked[0].id].Y != ButtonDataMap[buttonClicked[1].id].Y){
+        return equal_lineByLine();
+    }
+    return false;
 }
 
 function sameRow(){
@@ -119,8 +126,42 @@ function sameRow(){
     return true;
 }
 function sameCol(){
-    var up = (ButtonDataMap[buttonClicked[0].id].Y<buttonDataMap[buttonClicked[1].id].Y)? buttonDataMap[buttonClicked[0].id] : buttonDataMap[buttonClicked[1].id];
-    var down = (ButtonDataMap[buttonClicked[0].id].Y>buttonDataMap[buttonClicked[1].id].Y)? buttonDataMap[buttonClicked[0].id] : buttonDataMap[buttonClicked[1].id];
-    // for(var i = up){}
-
+    var up = (ButtonDataMap[buttonClicked[0].id].Y<ButtonDataMap[buttonClicked[1].id].Y)? ButtonDataMap[buttonClicked[0].id] : ButtonDataMap[buttonClicked[1].id];
+    var down = (ButtonDataMap[buttonClicked[0].id].Y>ButtonDataMap[buttonClicked[1].id].Y)? ButtonDataMap[buttonClicked[0].id] : ButtonDataMap[buttonClicked[1].id];
+    for(var i = up.Y+1;i<down.Y;i++){
+        if(ButtonDataMap[BOARD[i][up.X]].Visible){
+            return false;
+        }
+    }
+    return true;
 }
+
+function equalDiagonaly(){
+    var up = (ButtonDataMap[buttonClicked[0].id].Y < ButtonDataMap[buttonClicked[1]].id)? ButtonDataMap[buttonClicked[0].id]: ButtonDataMap[buttonClicked[1].id];
+    var down = (ButtonDataMap[buttonClicked[0].id].Y > ButtonDataMap[buttonClicked[1]].id)? ButtonDataMap[buttonClicked[0].id] : ButtonDataMap[buttonClicked]
+    var direction = (up.X < down.X)? 1:-1;
+    var x = up.X + direction;
+    for(var y = Math.abs(up.Y-down.Y)-1 ; y<down.Y;y++){
+        if(ButtonDataMap[BOARD[y][x].id].X == down.X){return true;}
+        if(ButtonDataMap[BOARD[y][x].id].Visible){return false;}
+        x += direction;
+    }
+    return true;
+}
+
+function equal_lineByLine(){
+    var up = (ButtonDataMap[buttonClicked[0].id].Y < ButtonDataMap[buttonClicked[1].id].Y) ? ButtonDataMap[buttonClicked[0].id] : ButtonDataMap[buttonClicked[1].id];
+    var down = (ButtonDataMap[buttonClicked[0].id].Y > ButtonDataMap[buttonClicked[1].id].Y) ? ButtonDataMap[buttonClicked[0].id] : ButtonDataMap[buttonClicked[1].id];
+    var y = up.Y ;var x = up.X + 1;
+    for(var i = 0;i<(Xsize -1 - up.X)+ down.X ; i++){
+        if(ButtonDataMap[BOARD[y][x]].Visible){
+            return false;
+        }
+        x++;
+        if(x == Xsize){
+            y++; x=0;
+        }
+    }
+    return true;
+}
+
