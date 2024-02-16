@@ -1,21 +1,25 @@
+var WINDOW_HEIGTH = window.innerHeight;
+var WINDWON_WIDTH = window.innerWidth;
 var Ysize = 10; // the maximum row in the board
 var Xsize = 9;  // the maximum numbers in a row
 var BOARD = Array.from(Array(Ysize), () => new Array(Xsize));
 var GridsBOARD = Array.from(Array(Ysize), () => new Array(Xsize));
 var ButtonDataMap = {};
 var VisbuttonsInStart = 27;
-var buttonSize = 100;
+var buttonSize = 90;
 var heigthestNumber = 9;
 var buttonClicked = new Array(2);
 var clickCounter = 2;
 var colors;
 var lastButtonCords = [0,0];
 var buttonsLeft = 0;
-var NumbersAlive = new Array(heigthestNumber+1)
+var NumbersAlive = new Array(heigthestNumber+1);
+var addRowButton;
 function setup(){
     colors = new colorStruct("#a8a3a3" , "#54de10" , "#c2bcbc");
     document.body.style.background = colors.Background;
     createGrid();
+    setupCSS()
     for(var i= 0;i<heigthestNumber+1;i++){NumbersAlive[i] = i;}
     for(var i = 0;i<Ysize;i++){
         for(var j = 0;j<Xsize;j++){
@@ -28,9 +32,12 @@ function setup(){
             }
         }
     }
-    // TODO: add a way to change css variables
 }
-
+function setupCSS(){
+    var root = document.querySelector(':root');
+    root.style.setProperty('--size', buttonSize+'px');
+    root.style.setProperty('--color', colors.Default);
+}
 function createButton(y ,x ,value){
     BOARD[y][x].className = "game_button";
     BOARD[y][x].id = "button" + (y*Xsize+x);
@@ -56,6 +63,10 @@ function createGrid(){
         }
     tbdy.appendChild(tr);
     }
+    var tr = document.createElement("tr");
+    var td = document.createElement("td");
+    td.setAttribute('rowSpan' , Ysize+'')
+    addRowButton = document.createElement('button');
     tbl.appendChild(tbdy);
     body.appendChild(tbl);
 }
@@ -63,7 +74,10 @@ function createFunctionalityArea(){
     AddRowButton();
 }
 function AddRowButton(){
-
+    addRowButton.id = "addRowButton";
+    addRowButton.onclick = function(){addRow;}
+    addRowButton.innerHTML = "+";
+    body.appendChild(addRowButton);
 }
 class buttonData{
     constructor(y, x, button, number, id , color , vis){
