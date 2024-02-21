@@ -1,6 +1,8 @@
 :root{
     --size : 100px;
     --color : #a8a3a3;
+    --addButtonSize : 50px;
+    --addRowSectionWidth : 150px;
 }
 .game_button{
     width : var(--size);
@@ -8,13 +10,19 @@
     background-color : var(--color);
 
 }
-/* #addRowButton{
-    position: relative;
-    top: 50%;
-    right: 10%;
-
-} */
-td{
-    border: 1px solid black;
+#addRowButton{
+    width : var(--addButtonSize);
+    height: var(--addButtonSize);
+    background-color: rgb(78, 197, 236);
 }
-
+/* td{
+    border: 1px solid black;
+} */
+#buttonsTd{
+    width : var(--size);
+    height : var(--size);
+}   
+#addButtonSection{
+    width: var(--addRowSectionWidth);
+    text-align: right;
+}

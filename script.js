@@ -6,7 +6,7 @@ var BOARD = Array.from(Array(Ysize), () => new Array(Xsize));
 var GridsBOARD = Array.from(Array(Ysize), () => new Array(Xsize));
 var ButtonDataMap = {};
 var VisbuttonsInStart = 27;
-var buttonSize = 90;
+var buttonSize = 50;
 var heigthestNumber = 9;
 var buttonClicked = new Array(2);
 var clickCounter = 2;
@@ -18,8 +18,9 @@ var addRowButton;
 function setup(){
     colors = new colorStruct("#a8a3a3" , "#54de10" , "#c2bcbc");
     document.body.style.background = colors.Background;
+    setupAddRowButton();
     createGrid();
-    setupCSS()
+    setupCSS();
     for(var i= 0;i<heigthestNumber+1;i++){NumbersAlive[i] = i;}
     for(var i = 0;i<Ysize;i++){
         for(var j = 0;j<Xsize;j++){
@@ -37,6 +38,7 @@ function setupCSS(){
     var root = document.querySelector(':root');
     root.style.setProperty('--size', buttonSize+'px');
     root.style.setProperty('--color', colors.Default);
+    root.style.setProperty('--addRowSectionWidth' , (WINDWON_WIDTH-buttonSize*Xsize)+"px")
 }
 function createButton(y ,x ,value){
     BOARD[y][x].className = "game_button";
@@ -54,30 +56,32 @@ function createGrid(){
         var tr = document.createElement('tr');
         for (var j = 0; j < Xsize; j++) {
             var td = document.createElement('td');
+            td.id = "buttonsTd";
             GridsBOARD[i][j] = td;
             if(i*Xsize+j < VisbuttonsInStart){
                 BOARD[i][j] = document.createElement("button");
                 td.appendChild(BOARD[i][j]);
             }
             tr.appendChild(td);
+            if(i==0 && j==Xsize-1){
+                var td = document.createElement("td");
+                td.appendChild(addRowButton);
+                td.id = "addButtonSection";
+                td.rowSpan = Ysize;
+                tr.appendChild(td);
+            }
         }
-    tbdy.appendChild(tr);
+        tbdy.appendChild(tr);
     }
-    var tr = document.createElement("tr");
-    var td = document.createElement("td");
-    td.setAttribute('rowSpan' , Ysize+'')
-    addRowButton = document.createElement('button');
+    tbdy.appendChild(tr);
     tbl.appendChild(tbdy);
     body.appendChild(tbl);
 }
-function createFunctionalityArea(){
-    AddRowButton();
-}
-function AddRowButton(){
-    addRowButton.id = "addRowButton";
-    addRowButton.onclick = function(){addRow;}
+function setupAddRowButton(){
+    addRowButton = document.createElement("button");
     addRowButton.innerHTML = "+";
-    body.appendChild(addRowButton);
+    addRowButton.onclick = function(){addRow();};
+    addRowButton.id = "addRowButton";
 }
 class buttonData{
     constructor(y, x, button, number, id , color , vis){
@@ -228,14 +232,15 @@ function addRow(){
             numbersToAdd.push(NumbersAlive[i]);
         }
     }
-    for(var i = lastButtonCords[0];i<Math.floor((buttonsLeft+lastButtonCords[1])/Xsize)+Math;i++){
+    for(var i = lastButtonCords[0];i<Math.floor((buttonsLeft+lastButtonCords[1])/Xsize)+(typeof((buttonsLeft+lastButtonCords[1])/Xsize) ==typeof(0.5))? +1 :0;i++){
         for(var j = (i==lastButtonCords[0])?lastButtonCords[1]:0;j<Xsize;j++){
-            BOARD[i][j].createElement("button");
+            BOARD[i][j] = document.createElement("button");
             GridsBOARD[i][j].appendChild(BOARD[i][j]);
             value = randomValue();
             createButton(i,j,value);
         }
     }
+    numbersToAdd = new Array(0);
 }
 
 function randomValue(){
