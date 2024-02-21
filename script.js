@@ -15,6 +15,7 @@ var lastButtonCords = [0,0];
 var buttonsLeft = 0;
 var NumbersAlive = new Array(heigthestNumber+1);
 var addRowButton;
+var NumbersOnBoard = new Array(0);
 function setup(){
     colors = new colorStruct("#a8a3a3" , "#54de10" , "#c2bcbc");
     document.body.style.background = colors.Background;
@@ -46,6 +47,7 @@ function createButton(y ,x ,value){
     BOARD[y][x].onclick = function(){buttonPress(this.id)};
     BOARD[y][x].innerHTML = value;
     ButtonDataMap[BOARD[y][x].id] = new buttonData(y,x,BOARD[y][x],value , BOARD[y][x].id , colors.Default , true);
+    NumbersOnBoard.push(value);
     buttonsLeft++;
 }
 function createGrid(){
@@ -119,8 +121,12 @@ function buttonPress(clicked){
                 buttonClicked[1].style.visibility = "hidden";
                 ButtonDataMap[buttonClicked[0].id].Visible = false;
                 ButtonDataMap[buttonClicked[1].id].Visible = false;
+                NumbersOnBoard[ButtonDataMap[buttonClicked[0].id].Y*Xsize + ButtonDataMap[buttonClicked[0].id].X] = 0;
+                NumbersOnBoard[ButtonDataMap[buttonClicked[1].id].Y*Xsize + ButtonDataMap[buttonClicked[1].id].X] = 0;
                 buttonsLeft -= 2;
                 clickCounter = 2;
+                GridsBOARD[ButtonDataMap[buttonClicked[0].id].Y][ButtonDataMap[buttonClicked[0].id].X].removeChild(buttonClicked[0]);
+                GridsBOARD[ButtonDataMap[buttonClicked[1].id].Y][ButtonDataMap[buttonClicked[1].id].X].removeChild(buttonClicked[1]);
             }
             else{
                 buttonClicked[0].style.background = colors.Default;
@@ -222,33 +228,27 @@ function updateLastButtonCords(back ,front){
             }
             if(flag){break;}
         }
-        lastButtonCords[1] = (lastButtonCords[1]-1 <0)? 8:lastButtonCords[1]-1; // position the lastbuttoncords one cell in front of the last one
     }
 }
-var numbersToAdd = new Array(0);
 function addRow(){
-    for(var i = 0;i<heigthestNumber+1;i++){
-        if(NumbersAlive[i] != 0){
-            numbersToAdd.push(NumbersAlive[i]);
+    if(buttonsLeft*2 <Xsize*Ysize){
+        var numbersToAdd = new Array(0);
+        for(var i = 0;i<NumbersOnBoard.length;i++){
+            if(NumbersOnBoard[i] != 0){
+                numbersToAdd.push(NumbersOnBoard[i]);
+            }
+        }
+        var y = lastButtonCords[0];var x = lastButtonCords[1];
+        var revolution = buttonsLeft;
+        for(var i = 0;i<revolution;i++){
+            x++;
+            if(x==9){
+                y++;x=0;
+            }
+            BOARD[y][x] = document.createElement("button");
+            GridsBOARD[y][x].appendChild(BOARD[y][x]);
+            value = numbersToAdd[i];
+            createButton(y,x,value);
         }
     }
-    for(var i = lastButtonCords[0];i<Math.floor((buttonsLeft+lastButtonCords[1])/Xsize)+(typeof((buttonsLeft+lastButtonCords[1])/Xsize) ==typeof(0.5))? +1 :0;i++){
-        for(var j = (i==lastButtonCords[0])?lastButtonCords[1]:0;j<Xsize;j++){
-            BOARD[i][j] = document.createElement("button");
-            GridsBOARD[i][j].appendChild(BOARD[i][j]);
-            value = randomValue();
-            createButton(i,j,value);
-        }
-    }
-    numbersToAdd = new Array(0);
-}
-
-function randomValue(){
-    var rd = Math.floor(Math.random()*numbersToAdd.length-1);
-    var value = rd;
-    numbersToAdd[rd] --;
-    if(numbersToAdd[rd]<1){
-        numbersToAdd.splice(rd,1);
-    }
-    return value;
 }
