@@ -122,19 +122,19 @@ function buttonPress(clicked){
                 buttonClicked[1].style.background = colors.Default;
             }
             else if(checkValue() && checkPos()){
-                buttonClicked[0].style.display = "none";
-                buttonClicked[1].style.display = "none";
+                buttonClicked[0].style.background = "red";
+                buttonClicked[1].style.background = "red";
                 ButtonDataMap[buttonClicked[0].id].Visible = false;
                 ButtonDataMap[buttonClicked[1].id].Visible = false;
                 NumbersOnBoard[ButtonDataMap[buttonClicked[0].id].Y*Xsize + ButtonDataMap[buttonClicked[0].id].X] = 0;
                 NumbersOnBoard[ButtonDataMap[buttonClicked[1].id].Y*Xsize + ButtonDataMap[buttonClicked[1].id].X] = 0;
                 buttonsLeft -= 2;
                 clickCounter = 2;
-                // GridsBOARD[ButtonDataMap[buttonClicked[0].id].Y][ButtonDataMap[buttonClicked[0].id].X].removeChild(buttonClicked[0]);
-                // GridsBOARD[ButtonDataMap[buttonClicked[1].id].Y][ButtonDataMap[buttonClicked[1].id].X].removeChild(buttonClicked[1]);
                 numberAliveInRow[ButtonDataMap[buttonClicked[0].id].Y]--;
                 numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y]--;
-                removeRow();
+                if(buttonsLeft >0){
+                    removeRow();
+                }
             }
             else{
                 buttonClicked[0].style.background = colors.Default;
@@ -227,9 +227,9 @@ function equal_lineByLine(){
 function updateLastButtonCords(back ,front){    
     if((back.Y == lastButtonCords[0] && back.X == lastButtonCords[1])||(front.Y == lastButtonCords[0] && front.X == lastButtonCords[1])){
         var flag = false;
-        for(var i = front.Y ; i>0 ;i--){
-            var t = ((i==front.Y)? front.X : 8)-1;
-            for(var j = t; j>0 ; j--){
+        for(var i = front.Y ; i>=0 ;i--){
+            var t = ((i==front.Y)? front.X : Xsize)-1;
+            for(var j = t; j>=0 ; j--){
                 if(ButtonDataMap[BOARD[i][j].id].Visible &&ButtonDataMap[BOARD[i][j].id] != back){
                     lastButtonCords[0] = i; lastButtonCords[1] = j;
                     flag = true;
@@ -264,35 +264,10 @@ function addRow(){
         }
     }
 }
-function rremoveRow(){
-    var flag = false;
-    for(var i = 0;i<numberAliveInRow.length-1;i++){
-        if(numberAliveInRow[i] == 0){
-            for(var j = 0;j<Xsize ;j++){
-                if(i*Xsize + j > lastButtonCords[0]*Xsize + lastButtonCords[1]){
-                    flag = true;
-                    break;
-                }
-                GridsBOARD[i][j].removeChild(BOARD[i][j]);
-                bringButtonUp(i , j);
-            }
-            if(i+1 == lastButtonCords[0]){ 
-                lastButtonCords[0] --;
-            }
-            numberAliveInRow[i] = numberAliveInRow[i+1];
-            numberAliveInRow[i+1] = 0;
-        }
-        if(flag){
-            break;
-        }
-    }
-    if(!isIn(numberAliveInRow , 0 , lastButtonCords[0])){
-        for(var x = 0;x<Xsize;x++){
-
-        }
-    }
-}
 function bringRowUp(row, shouldRemoveChild){
+    if(row+1 == lastButtonCords[0] && !shouldRemoveChild){ 
+        lastButtonCords[0] --;
+    }
     var flag = false;
     for(var x = 0;x<Xsize;x++){
         if(row*Xsize + x > lastButtonCords[0]*Xsize + lastButtonCords[1]){
@@ -301,9 +276,12 @@ function bringRowUp(row, shouldRemoveChild){
         }
         if(shouldRemoveChild)
             GridsBOARD[row][x].removeChild(BOARD[row][x]);
-        bringButtonUp(row , x);
+        if(numberAliveInRow[row+1] != 0){
+            bringButtonUp(row , x);
+        }
+
     }
-    if(row+1 == lastButtonCords[0]){ 
+    if(row+1 == lastButtonCords[0] && shouldRemoveChild){ 
         lastButtonCords[0] --;
     }
     numberAliveInRow[row] = numberAliveInRow[row+1];
@@ -325,33 +303,9 @@ function removeRow(){
     for(var i = 0;i<empty.length;i++){
         y = empty[i];
         bringRowUp(y, true)
-        // for(var x = 0;x<Xsize;x++){
-        //     if(y*Xsize + x > lastButtonCords[0]*Xsize + lastButtonCords[1]){
-        //         break;
-        //     }
-        //     GridsBOARD[y][x].removeChild(BOARD[y][x]);
-        //     bringButtonUp(y , x);
-        // }
-        // if(y+1 == lastButtonCords[0]){ 
-        //     lastButtonCords[0] --;
-        // }
-        // numberAliveInRow[y] = numberAliveInRow[y+1];
-        // numberAliveInRow[y+1] = 0;
         var flag = false;
         for(var w = y+1;w<lastButtonCords[0]+1;w++){
             flag = bringRowUp(w, false)
-            // for(var v = 0;v<Xsize;v++){
-            //     if(w*Xsize + v > lastButtonCords[0]*Xsize + lastButtonCords[1]){
-            //         flag = true;
-            //         break;
-            //     }
-            //     bringButtonUp(y,x);
-            // }
-            // if(w+1 == lastButtonCords[0]){ 
-            //     lastButtonCords[0] --;
-            // }
-            // numberAliveInRow[w] = numberAliveInRow[w+1];
-            // numberAliveInRow[w+1] = 0;
             if(flag){
                 break;
             }
@@ -368,8 +322,8 @@ function bringButtonUp(y ,x){
     ButtonDataMap[BOARD[y][x].id].Button = BOARD[y][x];
 }
 
-function isIn(lst , v, limit){
-    for(var i = 0;i<lst.length;i++){
+function isIn(lst , v, limit ,start){
+    for(var i = start;i<lst.length;i++){
         if(limit == i){
             return false;
         }

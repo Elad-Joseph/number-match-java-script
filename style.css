@@ -15,12 +15,10 @@
     height: var(--addButtonSize);
     background-color: rgb(78, 197, 236);
 }
-td{
-    border: 1px solid black;
-}
 #buttonsTd{
     width : var(--size);
     height : var(--size);
+    border: 1px solid black;
 }   
 #addButtonSection{
     width: var(--addRowSectionWidth);
