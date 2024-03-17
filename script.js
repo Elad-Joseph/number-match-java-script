@@ -17,17 +17,21 @@ var NumbersAlive = new Array(heigthestNumber+1);
 var addRowButton;
 var NumbersOnBoard = new Array(0);
 var numberAliveInRow = new Array(Ysize);
+var score =  0;
+var scoreBoard;
+var addRowClicks = 5;
+var addRowClicksArea;
 function setup(){
     for(var i = 0;i<Ysize;i++){numberAliveInRow[i] = 0;}
     colors = new colorStruct("#a8a3a3" , "#54de10" , "#c2bcbc");
     document.body.style.background = colors.Background;
-    setupAddRowButton();
+    setUpFunctionalityArea();
     createGrid();
     setupCSS();
     for(var i= 0;i<heigthestNumber+1;i++){NumbersAlive[i] = i;}
     for(var i = 0;i<Ysize;i++){
         for(var j = 0;j<Xsize;j++){
-            value = 1;//Math.floor(Math.random()*heigthestNumber+1);
+            value = Math.floor(Math.random()*heigthestNumber+1);
             NumbersAlive[value]++;
             createButton(i,j ,value);
             lastButtonCords = [i , j];
@@ -73,6 +77,8 @@ function createGrid(){
             if(i==0 && j==Xsize-1){
                 var td = document.createElement("td");
                 td.appendChild(addRowButton);
+                td.appendChild(scoreBoard);
+                td.appendChild(addRowClicksArea);
                 td.id = "addButtonSection";
                 td.rowSpan = Ysize;
                 tr.appendChild(td);
@@ -84,11 +90,26 @@ function createGrid(){
     tbl.appendChild(tbdy);
     body.appendChild(tbl);
 }
+function setUpFunctionalityArea(){
+    setupAddRowButton();
+    AddRowClicks()
+    setUpScoreBoard();
+}
 function setupAddRowButton(){
     addRowButton = document.createElement("button");
     addRowButton.innerHTML = "+";
     addRowButton.onclick = function(){addRow();};
     addRowButton.id = "addRowButton";
+}
+function AddRowClicks(){
+    addRowClicksArea = document.createElement("p");
+    addRowClicksArea.innerHTML = addRowClicks;
+    addRowClicksArea.id = "addRowClicks";
+}
+function setUpScoreBoard(){
+    scoreBoard = document.createElement("p");
+    scoreBoard.innerHTML = score;
+    scoreBoard.id = "scoreBoard";
 }
 class buttonData{
     constructor(y, x, button, number, id , color , vis){
@@ -122,8 +143,8 @@ function buttonPress(clicked){
                 buttonClicked[1].style.background = colors.Default;
             }
             else if(checkValue() && checkPos()){
-                buttonClicked[0].style.background = "red";
-                buttonClicked[1].style.background = "red";
+                buttonClicked[0].style.display = "none";
+                buttonClicked[1].style.display = "none";
                 ButtonDataMap[buttonClicked[0].id].Visible = false;
                 ButtonDataMap[buttonClicked[1].id].Visible = false;
                 NumbersOnBoard[ButtonDataMap[buttonClicked[0].id].Y*Xsize + ButtonDataMap[buttonClicked[0].id].X] = 0;
@@ -146,7 +167,9 @@ function buttonPress(clicked){
 
 }
 function checkValue(){
-    if(buttonClicked[0].value == buttonClicked[1].value || buttonClicked[1].value + buttonClicked[0].value == 10){
+    var button1 = ButtonDataMap[buttonClicked[0].id];
+    var button2 = ButtonDataMap[buttonClicked[1].id];
+    if(button1.value == button2.value || button1.value + button2.value == 10){
         return true;
     }
     return false;
@@ -176,6 +199,8 @@ function sameRow(){
             return false;
         }
     }
+    score += 2;
+    scoreBoard.innerHTML = score;
     updateLastButtonCords(left,right);
     return true;
 }
@@ -187,6 +212,8 @@ function sameCol(){
             return false;
         }
     }
+    score += 2;
+    scoreBoard.innerHTML = score;
     updateLastButtonCords(up,down);
     return true;
 }
@@ -197,10 +224,17 @@ function equalDiagonaly(){
     var direction = (up.X < down.X)? 1:-1;
     var x = up.X + direction;
     for(var y = up.Y + 1 ; y<down.Y;y++){
-        if(ButtonDataMap[BOARD[y][x].id].X == down.X){updateLastButtonCords(up,down);return true;}
+        if(ButtonDataMap[BOARD[y][x].id].X == down.X){
+            score += 2;
+            scoreBoard.innerHTML = score;
+            updateLastButtonCords(up,down);
+            return true;
+        }
         if(ButtonDataMap[BOARD[y][x].id].Visible){return false;}
         x += direction;
     }
+    score += 2;
+    scoreBoard.innerHTML = score;
     updateLastButtonCords(up,down);
     return true;
 }
@@ -221,10 +255,13 @@ function equal_lineByLine(){
             y++; x=0;
         }
     }
+    score += 2;
+    scoreBoard.innerHTML = score;
     updateLastButtonCords(up,down);
     return true;
 }
-function updateLastButtonCords(back ,front){    
+function updateLastButtonCords(back ,front){   
+    BOARD[lastButtonCords[0]][lastButtonCords[1]].style.background = "a8a3a3" 
     if((back.Y == lastButtonCords[0] && back.X == lastButtonCords[1])||(front.Y == lastButtonCords[0] && front.X == lastButtonCords[1])){
         var flag = false;
         for(var i = front.Y ; i>=0 ;i--){
@@ -233,6 +270,7 @@ function updateLastButtonCords(back ,front){
                 if(ButtonDataMap[BOARD[i][j].id].Visible &&ButtonDataMap[BOARD[i][j].id] != back){
                     lastButtonCords[0] = i; lastButtonCords[1] = j;
                     flag = true;
+                    BOARD[lastButtonCords[0]][lastButtonCords[1]].style.background = "blue";
                     break;
                 }
             }
@@ -265,11 +303,18 @@ function addRow(){
     }
 }
 function bringRowUp(row, shouldRemoveChild){
-    if(row+1 == lastButtonCords[0] && !shouldRemoveChild){ 
+    if(row+1 >= lastButtonCords[0] && !shouldRemoveChild){ 
         lastButtonCords[0] --;
     }
+    var first = 0
+    for(var i = 0;i<9;i++){
+        if(ButtonDataMap[BOARD[row][i].id].Visible){
+            first = i;
+            break;
+        }
+    }
     var flag = false;
-    for(var x = 0;x<Xsize;x++){
+    for(var x = first;x<Xsize;x++){
         if(row*Xsize + x > lastButtonCords[0]*Xsize + lastButtonCords[1]){
             flag = true;
             break;
@@ -281,7 +326,7 @@ function bringRowUp(row, shouldRemoveChild){
         }
 
     }
-    if(row+1 == lastButtonCords[0] && shouldRemoveChild){ 
+    if(row+1 >= lastButtonCords[0] && shouldRemoveChild){ 
         lastButtonCords[0] --;
     }
     numberAliveInRow[row] = numberAliveInRow[row+1];
@@ -297,9 +342,10 @@ function removeRow(){
         empty.push(ButtonDataMap[buttonClicked[0].id].Y)
     }
 
-    if(numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y] == 0){
+    if(numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y] == 0 && numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y] != numberAliveInRow[ButtonDataMap[buttonClicked[0].id].Y]){
         empty.push(ButtonDataMap[buttonClicked[1].id].Y)
     }
+    empty.sort((a,b) => b - a);
     for(var i = 0;i<empty.length;i++){
         y = empty[i];
         bringRowUp(y, true)
@@ -311,25 +357,19 @@ function removeRow(){
             }
         }
     }
-
+    if(empty.length > 0){
+        score += 2;
+        scoreBoard.innerHTML = score;
+    }
 }
 function bringButtonUp(y ,x){
+    var value = ButtonDataMap[BOARD[y+1][x].id].value;
     BOARD[y][x] = BOARD[y+1][x];
     BOARD[y+1][x] = null;
     GridsBOARD[y+1][x].removeChild(BOARD[y][x]);
     GridsBOARD[y][x].appendChild(BOARD[y][x]);
     BOARD[y][x].id = "button"+(y*Xsize +x);
     ButtonDataMap[BOARD[y][x].id].Button = BOARD[y][x];
-}
-
-function isIn(lst , v, limit ,start){
-    for(var i = start;i<lst.length;i++){
-        if(limit == i){
-            return false;
-        }
-        if(lst[i] == v){
-            return true;
-        }
-    }
-    return false;
+    ButtonDataMap[BOARD[y][x].id].Visible = true;
+    ButtonDataMap[BOARD[y][x].id].value = value;
 }
