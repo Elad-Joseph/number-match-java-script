@@ -152,7 +152,7 @@ function buttonPress(clicked){
                 buttonsLeft -= 2;
                 clickCounter = 2;
                 numberAliveInRow[ButtonDataMap[buttonClicked[0].id].Y]--;
-                numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y]--;
+                numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y]--;                
                 if(buttonsLeft >0){
                     removeRow();
                 }
@@ -247,7 +247,7 @@ function equal_lineByLine(){
         y++;x=0;
     }
     for(var i = 0;i<(Xsize -1 - up.X)+ down.X ; i++){
-        if(ButtonDataMap[BOARD[y][x].id].Visible){ // eror : Cant read property of undefind (reading id); buttons pos: first on the first row last col and the second on the second row sixth col
+        if(ButtonDataMap[BOARD[y][x].id].Visible){
             return false;
         }
         x++;
@@ -260,7 +260,9 @@ function equal_lineByLine(){
     updateLastButtonCords(up,down);
     return true;
 }
-function updateLastButtonCords(back ,front){   
+function updateLastButtonCords(back ,front){  
+    if(BOARD[lastButtonCords[0]][lastButtonCords[1]] == null) 
+        return;
     BOARD[lastButtonCords[0]][lastButtonCords[1]].style.background = "a8a3a3" 
     if((back.Y == lastButtonCords[0] && back.X == lastButtonCords[1])||(front.Y == lastButtonCords[0] && front.X == lastButtonCords[1])){
         var flag = false;
@@ -279,6 +281,7 @@ function updateLastButtonCords(back ,front){
     }
 }
 function addRow(){
+    if(buttonsLeft == 0) return;
     if(buttonsLeft*2 <Xsize*Ysize){
         var numbersToAdd = new Array(0);
         for(var i = 0;i<NumbersOnBoard.length;i++){
@@ -308,7 +311,7 @@ function bringRowUp(row, shouldRemoveChild){
     }
     var first = 0
     for(var i = 0;i<9;i++){
-        if(ButtonDataMap[BOARD[row][i].id].Visible){
+        if(BOARD[row][i] != null && ButtonDataMap[BOARD[row][i].id].Visible){
             first = i;
             break;
         }
@@ -327,7 +330,8 @@ function bringRowUp(row, shouldRemoveChild){
 
     }
     if(row+1 >= lastButtonCords[0] && shouldRemoveChild){ 
-        lastButtonCords[0] --;
+        if(lastButtonCords[0] > 0)
+            lastButtonCords[0] --;
     }
     numberAliveInRow[row] = numberAliveInRow[row+1];
     numberAliveInRow[row+1] = 0;
@@ -342,7 +346,7 @@ function removeRow(){
         empty.push(ButtonDataMap[buttonClicked[0].id].Y)
     }
 
-    if(numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y] == 0 && numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y] != numberAliveInRow[ButtonDataMap[buttonClicked[0].id].Y]){
+    if(numberAliveInRow[ButtonDataMap[buttonClicked[1].id].Y] == 0 && ButtonDataMap[buttonClicked[1].id].Y != ButtonDataMap[buttonClicked[0].id].Y){
         empty.push(ButtonDataMap[buttonClicked[1].id].Y)
     }
     empty.sort((a,b) => b - a);
@@ -363,13 +367,15 @@ function removeRow(){
     }
 }
 function bringButtonUp(y ,x){
+    if(BOARD[y+1][x] == null) return;
     var value = ButtonDataMap[BOARD[y+1][x].id].value;
+    var Visible = ButtonDataMap[BOARD[y+1][x].id].Visible;
     BOARD[y][x] = BOARD[y+1][x];
     BOARD[y+1][x] = null;
     GridsBOARD[y+1][x].removeChild(BOARD[y][x]);
     GridsBOARD[y][x].appendChild(BOARD[y][x]);
     BOARD[y][x].id = "button"+(y*Xsize +x);
     ButtonDataMap[BOARD[y][x].id].Button = BOARD[y][x];
-    ButtonDataMap[BOARD[y][x].id].Visible = true;
+    ButtonDataMap[BOARD[y][x].id].Visible = Visible;
     ButtonDataMap[BOARD[y][x].id].value = value;
 }
